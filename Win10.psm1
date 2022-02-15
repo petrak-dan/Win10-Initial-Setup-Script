@@ -1,8 +1,15 @@
 ##########
-# Win 10 / Server 2016 / Server 2019 Initial Setup Script - Tweak library
-# Author: Disassembler <disassembler@dasm.cz>
-# Version: v3.10, 2020-07-15
-# Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script
+# Win 10 / Win 11 Initial Setup Script - Tweak library
+# (modified version of Win 10 / Server 2016 / Server 2019 Initial Setup Script - Tweak library)
+#
+# This modified script information:
+#  Author: petrak-dan
+#  Version: 3.11.0, 2022-02-15
+#  Source: https://github.com/petrak-dan/Win11-Initial-Setup-Script
+# Original script information:
+#  Author: Disassembler <disassembler@dasm.cz>
+#  Version: v3.10, 2020-07-15
+#  Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script
 ##########
 
 ##########
@@ -54,10 +61,6 @@ Function DisableTelemetry {
 	Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" | Out-Null
 	Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" | Out-Null
 	Disable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
-	# Office 2016 / 2019
-	Disable-ScheduledTask -TaskName "Microsoft\Office\Office ClickToRun Service Monitor" -ErrorAction SilentlyContinue | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentFallBack2016" -ErrorAction SilentlyContinue | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentLogOn2016" -ErrorAction SilentlyContinue | Out-Null
 }
 
 # Enable Telemetry
@@ -80,10 +83,6 @@ Function EnableTelemetry {
 	Enable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" | Out-Null
 	Enable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" | Out-Null
 	Enable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
-	# Office 2016 / 2019
-	Enable-ScheduledTask -TaskName "Microsoft\Office\Office ClickToRun Service Monitor" -ErrorAction SilentlyContinue | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentFallBack2016" -ErrorAction SilentlyContinue | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentLogOn2016" -ErrorAction SilentlyContinue | Out-Null
 }
 
 # Disable Cortana
@@ -185,6 +184,14 @@ Function DisableWebSearch {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "DisableWebSearch" -Type DWord -Value 1
+	If (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer")) {
+		New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Type DWord -Value 1
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Type DWord -Value 1
 }
 
 # Enable Web Search in Start Menu
@@ -193,6 +200,8 @@ Function EnableWebSearch {
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "CortanaConsent" -Type DWord -Value 1
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "DisableWebSearch" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -ErrorAction SilentlyContinue
 }
 
 # Disable Application suggestions and automatic installation
@@ -249,6 +258,21 @@ Function EnableAppSuggestions {
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace" -Name "AllowSuggestedAppsInWindowsInkWorkspace" -ErrorAction SilentlyContinue
+}
+
+# Disable News and Interests feed in Taskbar
+Function DisableNewsAndInterests {
+	Write-Output "Disabling News and Interests..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
+}
+
+# Enable News and Interests feed in Taskbar
+Function EnableNewsAndInterests {
+	Write-Output "Enabling News and Interests..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -ErrorAction SilentlyContinue
 }
 
 # Disable Activity History feed in Task View
@@ -405,6 +429,21 @@ Function DisableCamera {
 Function EnableCamera {
 	Write-Output "Enabling access to camera..."
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" -Name "LetAppsAccessCamera" -ErrorAction SilentlyContinue
+}
+
+# Disables the lock screen camera toggle switch and prevents a camera from being invoked on the lock screen.
+Function DisableLockScreenCamera {
+	Write-Output "Disabling lock screen camera..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreenCamera" -Type DWord -Value 1
+}
+
+# Enables the lock screen camera toggle switch and allows a camera from being invoked on the lock screen.
+Function EnableLockScreenCamera {
+	Write-Output "Enabling lock screen camera..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreenCamera" -ErrorAction SilentlyContinue
 }
 
 # Disable access to microphone
@@ -829,6 +868,119 @@ Function EnableUWPSwapFile {
 
 ##########
 #endregion UWP Privacy Tweaks
+##########
+
+
+
+##########
+#region Office Privacy Tweaks
+##########
+
+# Disable the telemetry for Microsoft Office 2013 (15.0), 2016 and newer (16.0).
+# https://docs.microsoft.com/en-us/deployoffice/privacy/manage-privacy-controls#policy-setting-for-diagnostic-data
+# https://docs.microsoft.com/en-us/deployoffice/compat/manage-the-privacy-of-data-monitored-by-telemetry-in-office
+Function DisableOfficeTelemetry {
+	Write-Output "Disabling Office Telemetry..."
+	If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm")) {
+		New-Item -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Name "EnableFileObfuscation" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Name "Enablelogging" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Name "EnableUpload" -Type DWord -Value 0
+	If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm")) {
+		New-Item -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Name "EnableFileObfuscation" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Name "Enablelogging" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Name "EnableUpload" -Type DWord -Value 0
+	If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications")) {
+		New-Item -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "accesssolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "olksolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "onenotesolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "pptsolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "projectsolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "publishersolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "visiosolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "wdsolution" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "xlsolution" -Type DWord -Value 1
+	If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes")) {
+		New-Item -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "agave" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "appaddins" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "comaddins" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "documentfiles" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "templatefiles" -Type DWord -Value 1
+	
+	If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Office\common\clienttelemetry")) {
+		New-Item -Path "HKCU:\Software\Policies\Microsoft\Office\common\clienttelemetry" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\common\clienttelemetry" -Name "sendtelemetry" -Type DWord -Value 3
+	If (!(Test-Path "HKCU:\Software\Microsoft\Office\Common\ClientTelemetry")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Office\Common\ClientTelemetry" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Office\Common\ClientTelemetry" -Name "DisableTelemetry" -Type DWord -Value 1
+	Disable-ScheduledTask -TaskName "Microsoft\Office\Office ClickToRun Service Monitor" -ErrorAction SilentlyContinue | Out-Null
+	Disable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentFallBack2016" -ErrorAction SilentlyContinue | Out-Null
+	Disable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentLogOn2016" -ErrorAction SilentlyContinue | Out-Null
+}
+
+# Enable the telemetry for Microsoft Office 2013 (15.0), 2016 and newer (16.0)..
+Function EnableOfficeTelemetry {
+	Write-Output "Enabling Office Telemetry..."
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Name "EnableFileObfuscation" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Name "Enablelogging" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\15.0\osm" -Name "EnableUpload" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Name "EnableFileObfuscation" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Name "Enablelogging" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm" -Name "EnableUpload" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "accesssolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "olksolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "onenotesolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "pptsolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "projectsolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "publishersolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "visiosolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "wdsolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedapplications" -Name "xlsolution" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "agave" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "appaddins" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "comaddins" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "documentfiles" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\osm\preventedsolutiontypes" -Name "templatefiles" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\common\clienttelemetry" -Name "sendtelemetry" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Office\Common\ClientTelemetry" -Name "DisableTelemetry" -ErrorAction SilentlyContinue
+	Enable-ScheduledTask -TaskName "Microsoft\Office\Office ClickToRun Service Monitor" -ErrorAction SilentlyContinue | Out-Null
+	Enable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentFallBack2016" -ErrorAction SilentlyContinue | Out-Null
+	Enable-ScheduledTask -TaskName "Microsoft\Office\OfficeTelemetryAgentLogOn2016" -ErrorAction SilentlyContinue | Out-Null
+}
+
+# Disable Connected Experiences in Office 2016 and newer.
+# https://docs.microsoft.com/en-us/deployoffice/privacy/manage-privacy-controls#policy-setting-for-diagnostic-data
+Function DisableOfficeConnectedExp {
+	Write-Output "Disabling Office Connected Experiences..."
+	If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy")) {
+		New-Item -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "disconnectedstate" -Type DWord -Value 2
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "usercontentdisabled" -Type DWord -Value 2
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "downloadcontentdisabled" -Type DWord -Value 2
+	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "controllerconnectedservicesenabled" -Type DWord -Value 2
+}
+
+# Enable Connected Experiences in Office 2016 and newer.
+Function EnableOfficeConnectedExp {
+	Write-Output "Enabling Office Connected Experiences..."
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "disconnectedstate" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "usercontentdisabled" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "downloadcontentdisabled" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Office\16.0\common\privacy" -Name "controllerconnectedservicesenabled" -ErrorAction SilentlyContinue
+}
+
+##########
+#endregion Office Privacy Tweaks
 ##########
 
 
@@ -1853,6 +2005,29 @@ Function EnableLockScreenRS1 {
 	Unregister-ScheduledTask -TaskName "Disable LockScreen" -Confirm:$false -ErrorAction SilentlyContinue
 }
 
+# Enable Classic Context Menu in Windows 11, i.e. show more options directly.
+Function EnableClassicContextMenu {
+	Write-Output "Enabling Classic Context Menu..."
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		If (!(Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}")) {
+			New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" | Out-Null
+		}
+		If (!(Test-Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32")) {
+			New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" | Out-Null
+		}
+		Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(Default)" -Type String -Value ""
+	}
+}
+
+# Disable Classic Context Menu in Windows 11, i.e. enable the New Context Menu with "Show more options" item.
+Function DisableClassicContextMenu {
+	Write-Output "Disabling Classic Context Menu..."
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		Remove-Item "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" -Recurse -ErrorAction SilentlyContinue
+	}
+}
+
+
 # Hide network options from Lock Screen
 Function HideNetworkFromLockScreen {
 	Write-Output "Hiding network options from Lock Screen..."
@@ -2052,6 +2227,21 @@ Function HideTaskbarPeopleIcon {
 Function ShowTaskbarPeopleIcon {
 	Write-Output "Showing People icon..."
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -ErrorAction SilentlyContinue
+}
+
+# Hide Taskbar Meet Now icon
+Function HideTaskbarMeetNowIcon {
+	Write-Output "Hiding Meet Now icon..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
+		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
+}
+
+# Show Taskbar Meet Now icon
+Function ShowTaskbarMeetNowIcon {
+	Write-Output "Showing Meet Now icon..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -ErrorAction SilentlyContinue
 }
 
 # Show all tray icons
@@ -2451,6 +2641,36 @@ Function DisableF1HelpKey {
 Function EnableF1HelpKey {
 	Write-Output "Enabling F1 Help key..."
 	Remove-Item "HKCU:\Software\Classes\TypeLib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0" -Recurse -ErrorAction SilentlyContinue
+}
+
+# Disable the 'Are you sure you want to uninstall...' dialog in the 'Programs and Features' control panel.
+Function DisableUninstallPrompt {
+	Write-Output "Disabling Uninstall Prompt..."
+	If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\DontShowMeThisDialogAgain")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\DontShowMeThisDialogAgain" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\DontShowMeThisDialogAgain" -Name "{948e51fb-0a48-44f0-86ac-33c36def540c}" -Type String -Value "NO"
+}
+
+# Enable the 'Are you sure you want to uninstall...' dialog in the 'Programs and Features' control panel.
+Function EnableUninstallPrompt {
+	Write-Output "Enabling Uninstall Prompt..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\DontShowMeThisDialogAgain" -Name "{948e51fb-0a48-44f0-86ac-33c36def540c}" -ErrorAction SilentlyContinue
+}
+
+# Disable the System Configuration restart dialog.
+Function DisableMsConfigRestartPrompt {
+	Write-Output "Disabling MsConfig Restart Prompt..."
+	If (!(Test-Path "HKCU:\Software\Microsoft\Shared Tools\MsConfig")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Shared Tools\MsConfig" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Shared Tools\MsConfig" -Name "NoRebootUI" -Type DWord -Value 1
+}
+
+# Enable the System Configuration restart dialog.
+Function EnableMsConfigRestartPrompt {
+	Write-Output "Enabling MsConfig Restart Prompt..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Shared Tools\MsConfig" -Name "NoRebootUI" -ErrorAction SilentlyContinue
 }
 
 ##########
@@ -3623,6 +3843,21 @@ Function EnableMediaOnlineAccess {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WMDRM" -Name "DisableOnline" -ErrorAction SilentlyContinue
 }
 
+# Disable Steps Recorder
+Function DisableStepsRecorder {
+	Write-Output "Disabling Steps Recorder..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "DisableUAR" -Type DWord -Value 1
+}
+
+# Enable Steps Recorder
+Function EnableStepsRecorder {
+	Write-Output "Enabling Steps Recorder..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" -Name "DisableUAR" -ErrorAction SilentlyContinue
+}
+
 # Enable Developer Mode
 Function EnableDeveloperMode {
 	Write-Output "Enabling Developer Mode..."
@@ -4045,7 +4280,7 @@ Function DisableAudio {
 #region Unpinning
 ##########
 
-# Unpin all Start Menu tiles
+# Unpin all Start Menu tiles in Windows 10
 # Note: This function has no counterpart. You have to pin the tiles back manually.
 Function UnpinStartMenuTiles {
 	Write-Output "Unpinning all Start Menu tiles..."
@@ -4055,7 +4290,7 @@ Function UnpinStartMenuTiles {
 			$data = $data.Substring(0, $data.IndexOf(",0,202,30") + 9) + ",0,202,80,0,0"
 			Set-ItemProperty -Path "$($_.PsPath)\Current" -Name "Data" -Type Binary -Value $data.Split(",")
 		}
-	} ElseIf ([System.Environment]::OSVersion.Version.Build -ge 17134) {
+	} ElseIf ([System.Environment]::OSVersion.Version.Build -ge 17134 -And [System.Environment]::OSVersion.Version.Build -lt 22000) {
 		$key = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\*start.tilegrid`$windows.data.curatedtilecollection.tilecollection\Current"
 		$data = $key.Data[0..25] + ([byte[]](202,50,0,226,44,1,1,0,0))
 		Set-ItemProperty -Path $key.PSPath -Name "Data" -Type Binary -Value $data
@@ -4080,6 +4315,23 @@ Function UnpinTaskbarIcons {
 ##########
 #region Auxiliary Functions
 ##########
+
+# Show Terms of Use Agreement
+Function PromptTermsOfUse {
+	Write-Output (
+		"`n------------" +
+		"`nTerms of Use" +
+		"`n------------" +
+		"`n`nThis script is intended for testing purposes only and comes with ABSOLUTELY NO WARRANTY." +
+		"`nTo use this script, you must know what is this script about to do" + 
+		"`nand understand possible consequences by running this script." +
+		"`n`nDo you accept the terms? (Y)es/(N)o:`n"
+	)
+	$key = [Console]::ReadKey($true)
+	If ($key.KeyChar -ne "y") {
+		Exit
+	}
+}
 
 # Wait for key press
 Function WaitForKey {

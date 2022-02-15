@@ -1,0 +1,17 @@
+3.11.0, 2022-02-15
+
+- *BREAKING* Rename project to Win11-Initial-Setup-Script
+- Add Terms of Use Agreement before running default preset
+- Add "Enable Classic Context Menu" in Windows 11 ("Show more options")
+- Add "Disable News and Interests feed in Taskbar"
+- Add "Hide Taskbar Meet Now icon"
+- Add "Disable Office Telemetry" for Office 2013 and newer
+- Add "Disable Office Connected Experiences" for Office 2016 and newer
+- Add "Disable Lock Screen Camera"
+- Add "Disable Steps Recorder"
+- Add "Disable Uninstall Prompt in Programs and Features"
+- Add "Disable MsConfig Restart Prompt"
+- Update Telemetry tweak to exclude Office (moved to separate updated tweak)
+- Update "Disable Web Search in Start Menu" to support Windows 11
+- Update "Unpin all Start Menu tiles" to apply only for Windows 10
+- Update README.md, LICENSE notice and defaults in Default.preset
