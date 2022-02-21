@@ -1,4 +1,16 @@
-3.11.0, 2022-02-15
+v3.12.0, 2022-02-21
+
+- Add "Disable IE AutoComplete"
+- Add "Disable IE warning on closing multiple tabs"
+- Add "Disable Widgets" in Windows 11
+- Add "Hide taskbar Chat icon" in Windows 11
+- Add "Set taskbar alignment to the left/center" in Windows 11
+- Add "Show default size icons in taskbar", also see updates below
+- Update "Show small icons in taskbar" to support Windows 11
+- Update "Show large icons in taskbar" to support Windows 11
+  Note: equal to "Show Default Size Taskbar Icons" in Windows 10
+
+v3.11.0, 2022-02-15
 
 - *BREAKING* Rename project to Win11-Initial-Setup-Script
 - Add Terms of Use Agreement before running default preset
@@ -15,3 +27,7 @@
 - Update "Disable Web Search in Start Menu" to support Windows 11
 - Update "Unpin all Start Menu tiles" to apply only for Windows 10
 - Update README.md, LICENSE notice and defaults in Default.preset
+
+v3.10, 2020-07-15
+
+- Archived version of the original Win10-Initial-Setup-Script

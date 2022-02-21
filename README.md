@@ -10,7 +10,7 @@
 &nbsp;
 
 ## Description
-This is a PowerShell script for automation of routine tasks done after fresh installations of Windows 10 and Windows 11. This is by no means any complete set of all existing Windows tweaks and neither is it another "antispying" type of script. It's simply a setting which I like to use and which in my opinion make the system less obtrusive. The project is based on original [Win 10 / Server 2016 / Server 2019 Initial Setup Script by Disassembler0](https://github.com/Disassembler0/Win10-Initial-Setup-Script), which was unfortunately archived. The main purpose of forking the project is to make the script more compatible with Windows 11 and to include additional tweaks in general. In comparison with the original project, this one makes less changes to the system by default for the safety and functionality reasons and requires accepting the terms of use before running them. I'm able to maintain the project only occasionally, as I have more pressing work to deal with at the moment.
+This is a PowerShell script for automation of routine tasks done after fresh installations of Windows 10 and Windows 11. This is by no means any complete set of all existing Windows tweaks and neither is it another "antispying" type of script. It's simply a setting which I like to use and which in my opinion make the system less obtrusive. The project is based on the original [Win 10 / Server 2016 / Server 2019 Initial Setup Script by Disassembler0](https://github.com/Disassembler0/Win10-Initial-Setup-Script), which has been unfortunately archived. The main purpose of forking the project is to make the script more compatible with Windows 11 and to include additional tweaks in general. In comparison with the original project, this one makes less changes to the system by default for the safety and functionality reasons and requires accepting the terms of use before running them.
 
 &nbsp;
 
@@ -63,7 +63,7 @@ The script supports command line options and parameters which can help you custo
 **A:** As long as I use or maintain machines with Windows.
 
 **Q:** I really like the script. Can I send a donation?  
-**A:** Feel free to send donations to author of the original project via [PayPal](https://www.paypal.me/Disassembler). Any amount is appreciated, but keep in mind that donations are completely voluntary and I'm not obliged to make any script adjustments in your favor regardless of the donated amount.
+**A:** Feel free to [Buy me a coffee](https://www.buymeacoffee.com/petrak.dan) or send a donation to the author of the original project via [PayPal](https://www.paypal.me/Disassembler). Any amount is appreciated, but keep in mind that donations are completely voluntary and I'm not obliged to make any script adjustments in your favor regardless of the donated amount.
 
 &nbsp;
 

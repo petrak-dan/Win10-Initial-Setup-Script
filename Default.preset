@@ -2,9 +2,9 @@
 # Win 10 / Win 11 Initial Setup Script - Default preset
 # (modified version of Win 10 / Server 2016 / Server 2019 Initial Setup Script - Default preset)
 #
-# This modified script information:
+# This (modified) script information:
 #  Author: petrak-dan
-#  Version: 3.11.0, 2022-02-15
+#  Version: v3.12.0, 2022-02-21
 #  Source: https://github.com/petrak-dan/Win11-Initial-Setup-Script
 # Original script information:
 #  Author: Disassembler <disassembler@dasm.cz>
@@ -23,6 +23,7 @@ DisableWiFiSense                # EnableWiFiSense
 # DisableSmartScreen            # EnableSmartScreen
 # DisableWebSearch              # EnableWebSearch
 DisableAppSuggestions           # EnableAppSuggestions
+DisableWidgets                  # EnableWidgets
 DisableNewsAndInterests         # EnableNewsAndInterests
 DisableActivityHistory          # EnableActivityHistory
 # DisableSensors                # EnableSensors
@@ -146,11 +147,13 @@ EnableUpdateMSProducts          # DisableUpdateMSProducts
 ShowTaskManagerDetails          # HideTaskManagerDetails
 ShowFileOperationsDetails       # HideFileOperationsDetails
 # EnableFileDeleteConfirm       # DisableFileDeleteConfirm
+# SetTaskbarAlignLeft           # SetTaskbarAlignCenter
 HideTaskbarSearch               # ShowTaskbarSearchIcon         # ShowTaskbarSearchBox
 # HideTaskView                  # ShowTaskView
-# ShowSmallTaskbarIcons         # ShowLargeTaskbarIcons
+# ShowSmallTaskbarIcons         # ShowLargeTaskbarIcons         # ShowDefaultSizeTaskbarIcons
 # SetTaskbarCombineWhenFull     # SetTaskbarCombineNever        # SetTaskbarCombineAlways
 HideTaskbarPeopleIcon           # ShowTaskbarPeopleIcon
+# HideTaskbarChatIcon           # ShowTaskbarChatIcon
 HideTaskbarMeetNowIcon          # ShowTaskbarMeetNowIcon
 # ShowTrayIcons                 # HideTrayIcons
 # ShowSecondsInTaskbar          # HideSecondsFromTaskbar
@@ -222,8 +225,6 @@ Hide3DObjectsFromThisPC         # Show3DObjectsInThisPC
 # DisableThumbnails             # EnableThumbnails
 # DisableThumbnailCache         # EnableThumbnailCache
 DisableThumbsDBOnNetwork        # EnableThumbsDBOnNetwork
-DisableUninstallPrompt          # EnableUninstallPrompt
-# DisableMsConfigRestartPrompt  # EnableMsConfigRestartPrompt
 
 ### Application Tweaks ###
 # DisableOneDrive               # EnableOneDrive
@@ -237,10 +238,13 @@ UninstallThirdPartyBloat        # InstallThirdPartyBloat
 DisableEdgePreload              # EnableEdgePreload
 DisableEdgeShortcutCreation     # EnableEdgeShortcutCreation
 DisableIEFirstRun               # EnableIEFirstRun
+# DisableIEAutoComplete         # EnableIEAutoComplete
+# DisableIEWarnOnClose          # EnableIEWarnOnClose
 DisableFirstLogonAnimation      # EnableFirstLogonAnimation
 DisableMediaSharing             # EnableMediaSharing
 # DisableMediaOnlineAccess      # EnableMediaOnlineAccess
 # DisableStepsRecorder          # EnableStepsRecorder
+# DisableMsConfigRestartPrompt  # EnableMsConfigRestartPrompt
 # EnableDeveloperMode           # DisableDeveloperMode
 # UninstallMediaPlayer          # InstallMediaPlayer
 # UninstallInternetExplorer     # InstallInternetExplorer
@@ -261,6 +265,7 @@ DisableMediaSharing             # EnableMediaSharing
 # UninstallXPSPrinter           # InstallXPSPrinter
 # RemoveFaxPrinter              # AddFaxPrinter
 # UninstallFaxAndScan           # InstallFaxAndScan
+DisableUninstallPrompt          # EnableUninstallPrompt
 
 ### Server Specific Tweaks ###
 # HideServerManagerOnLogin      # ShowServerManagerOnLogin

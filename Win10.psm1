@@ -2,9 +2,9 @@
 # Win 10 / Win 11 Initial Setup Script - Tweak library
 # (modified version of Win 10 / Server 2016 / Server 2019 Initial Setup Script - Tweak library)
 #
-# This modified script information:
+# This (modified) script information:
 #  Author: petrak-dan
-#  Version: 3.11.0, 2022-02-15
+#  Version: v3.12.0, 2022-02-21
 #  Source: https://github.com/petrak-dan/Win11-Initial-Setup-Script
 # Original script information:
 #  Author: Disassembler <disassembler@dasm.cz>
@@ -258,6 +258,23 @@ Function EnableAppSuggestions {
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace" -Name "AllowSuggestedAppsInWindowsInkWorkspace" -ErrorAction SilentlyContinue
+}
+
+# Disable Widgets in Windows 11
+Function DisableWidgets {
+	Write-Output "Disabling Widgets..."
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh")) {
+			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" | Out-Null
+		}
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -Type DWord -Value 0
+	}
+}
+
+# Enable Widgets in Windows 11
+Function EnableWidgets {
+	Write-Output "Enabling Widgets..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -ErrorAction SilentlyContinue
 }
 
 # Disable News and Interests feed in Taskbar
@@ -2151,6 +2168,20 @@ Function DisableFileDeleteConfirm {
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -ErrorAction SilentlyContinue
 }
 
+# Set taskbar alignment to the left in Windows 11
+Function SetTaskbarAlignLeft {
+	Write-Output "Setting taskbar alignment to the left..."
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0
+	}
+}
+
+# Set taskbar alignment to the center in Windows 11
+Function SetTaskbarAlignCenter {
+	Write-Output "Setting taskbar alignment to the center..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -ErrorAction SilentlyContinue
+}
+
 # Hide Taskbar Search icon / box
 Function HideTaskbarSearch {
 	Write-Output "Hiding Taskbar Search icon / box..."
@@ -2184,12 +2215,27 @@ Function ShowTaskView {
 # Show small icons in taskbar
 Function ShowSmallTaskbarIcons {
 	Write-Output "Showing small icons in taskbar..."
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type DWord -Value 1
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi" -Type DWord -Value 0
+	} ElseIf ([System.Environment]::OSVersion.Version.Build -lt 22000) {
+		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type DWord -Value 1
+	}
 }
 
 # Show large icons in taskbar
+# Note: Large taskbar and its icons are supported in Windows 11. In Windows 10, size is just reverted back to default (same effect like ShowDefaultSizeTaskbarIcons).
 Function ShowLargeTaskbarIcons {
 	Write-Output "Showing large icons in taskbar..."
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi" -Type DWord -Value 2
+	}
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -ErrorAction SilentlyContinue
+}
+
+# Show default-sized icons in taskbar
+Function ShowDefaultSizeTaskbarIcons {
+	Write-Output "Showing large icons in taskbar..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSi" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -ErrorAction SilentlyContinue
 }
 
@@ -2227,6 +2273,23 @@ Function HideTaskbarPeopleIcon {
 Function ShowTaskbarPeopleIcon {
 	Write-Output "Showing People icon..."
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -ErrorAction SilentlyContinue
+}
+
+# Hide Taskbar Chat icon and disable its control in settings
+Function HideTaskbarChatIcon {
+	Write-Output "Hiding Chat icon..."
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+		If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat")) {
+			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat" | Out-Null
+		}
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat" -Name "ChatIcon" -Type DWord -Value 3
+	}
+}
+
+# Show Taskbar Chat icon and enable its control in settings
+Function ShowTaskbarChatIcon {
+	Write-Output "Showing Chat icon..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat" -Name "ChatIcon" -ErrorAction SilentlyContinue
 }
 
 # Hide Taskbar Meet Now icon
@@ -3790,6 +3853,55 @@ Function DisableIEFirstRun {
 Function EnableIEFirstRun {
 	Write-Output "Disabling Internet Explorer first run wizard..."
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -ErrorAction SilentlyContinue
+}
+
+# Disable Internet Explorer 'AutoComplete' suggestions.
+Function DisableIEAutoComplete {
+	Write-Output "Disabling Internet Explorer 'AutoComplete' suggestions..."
+	If (!(Test-Path "HKCU:\Software\Microsoft\Internet Explorer\DomainSuggestion")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Internet Explorer\DomainSuggestion" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\DomainSuggestion" -Name "Enabled" -Type DWord -Value 0
+	If (!(Test-Path "HKCU:\Software\Microsoft\Internet Explorer\Main")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Name "FormSuggest Passwords" -Type String -Value "no"
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Name "FormSuggest PW Ask" -Type String -Value "no"
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Name "Use FormSuggest" -Type String -Value "no"
+	If (!(Test-Path "HKCU:\Software\Microsoft\Internet Explorer\Main\WindowsSearch")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Internet Explorer\Main\WindowsSearch" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main\WindowsSearch" -Name "AutoCompleteGroups" -Type DWord -Value 0
+	If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete" -Name "AutoSuggest" -Type String -Value "no"
+}
+
+# Set default Internet Explorer 'AutoComplete' suggestions settings.
+Function EnableIEAutoComplete {
+	Write-Output "Enabling Internet Explorer 'AutoComplete' suggestions..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\DomainSuggestion" -Name "Enabled" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Name "FormSuggest Passwords" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Name "FormSuggest PW Ask" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main" -Name "Use FormSuggest" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\Main\WindowsSearch" -Name "AutoCompleteGroups" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete" -Name "AutoSuggest" -ErrorAction SilentlyContinue
+}
+
+# Disable Internet Explorer warning when closing multiple tabs.
+Function DisableIEWarnOnClose {
+	Write-Output "Disabling Internet Explorer warning when closing multiple tabs..."
+	If (!(Test-Path "HKCU:\Software\Microsoft\Internet Explorer\TabbedBrowsing")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Internet Explorer\TabbedBrowsing" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\TabbedBrowsing" -Name "WarnOnClose" -Type DWord -Value 0
+}
+
+# Enable Internet Explorer warning when closing multiple tabs.
+Function EnableIEWarnOnClose {
+	Write-Output "Enabling Internet Explorer warning when closing multiple tabs..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Internet Explorer\TabbedBrowsing" -Name "WarnOnClose" -ErrorAction SilentlyContinue
 }
 
 # Disable "Hi!" First Logon Animation (it will be replaced by "Preparing Windows" message)

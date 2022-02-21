@@ -2,9 +2,9 @@
 # Win 10 / Win 11 Initial Setup Script - Main execution loop
 # (modified version of Win 10 / Server 2016 / Server 2019 Initial Setup Script - Main execution loop)
 #
-# This modified script information:
+# This (modified) script information:
 #  Author: petrak-dan
-#  Version: 3.11.0, 2022-02-15
+#  Version: v3.12.0, 2022-02-21
 #  Source: https://github.com/petrak-dan/Win11-Initial-Setup-Script
 # Original script information:
 #  Author: Disassembler <disassembler@dasm.cz>
